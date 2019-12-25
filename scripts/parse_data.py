@@ -36,45 +36,16 @@ NOSCORE_NATIONS = [
     'USA'
 ]
 
-# test_file = os.path.join(DATA_FOLDER, 'BELGIUM_0', 'BELGIUM_0_0304.csv')
-
-def get_headers_score(row):
+def get_headers_score(row, score=True):
     header_dict = {}
+    h_keys = ['fthg', 'ftag', 'b365h', 'b365d', 'b365a']
+    if not score:
+        h_keys = ['hg', 'ag', 'avgh', 'avgd', 'avga']
+    h_vals = ['gh', 'ga', 'oh', 'od', 'oa']
     for x in range(len(row)):
-        # if 'home' in row[x].lower():
-        #     header_dict['home'] = x
-        # if 'away' in row[x].lower():
-        #     header_dict['away'] = x
-        if 'fthg' in row[x].lower():
-            header_dict['gh'] = x
-        if 'ftag' in row[x].lower():
-            header_dict['ga'] = x
-        if 'b365h' in row[x].lower():
-            header_dict['oh'] = x
-        if 'b365d' in row[x].lower():
-            header_dict['od'] = x
-        if 'b365a' in row[x].lower():
-            header_dict['oa'] = x
-        # if '>2.5' in row[x].lower():
-        #     header_dict['go25'] = x
-        # if '<2.5' in row[x].lower():
-        #     header_dict['gu25'] = x
-
-    return header_dict
-
-def get_headers_no_score(row):
-    header_dict = {}
-    for x in range(len(row)):
-        if 'hg' in row[x].lower():
-            header_dict['gh'] = x
-        if 'ag' in row[x].lower():
-            header_dict['ga'] = x
-        if 'avgh' in row[x].lower():
-            header_dict['oh'] = x
-        if 'avgd' in row[x].lower():
-            header_dict['od'] = x
-        if 'avga' in row[x].lower():
-            header_dict['oa'] = x
+        for n_key in range(len(h_keys)):
+            if h_keys[n_key] in row[x].lower():
+                header_dict[h_vals[n_key]] = x
 
     return header_dict
 
@@ -90,10 +61,7 @@ def get_data_points(data_file):
             for row in csv_r:
                 row_result = {}
                 if row_c == 0:
-                    if has_score:
-                        headers = get_headers_score(row)
-                    else:
-                        headers = get_headers_no_score(row)
+                    headers = get_headers_score(row, has_score)
                 else:
                     for head in list(headers.keys()):
                         row_result[head] = row[headers[head]]
@@ -104,16 +72,17 @@ def get_data_points(data_file):
 
     return results
 
-DATA_FOLDER = 'data/'
-total_data = []
+def get_data_from_folder(folder):
+    total_data = []
 
-for root, dirs, files in os.walk(DATA_FOLDER):
-    for file in files:
-        if '.csv' in file:
-            data_file = os.path.join(root, file)
-            total_data.extend(get_data_points(data_file))
+    for root, dirs, files in os.walk(folder):
+        for file in files:
+            if '.csv' in file:
+                data_file = os.path.join(root, file)
+                total_data.extend(get_data_points(data_file))
 
-total_data = total_data[:-1]
-print(len(total_data))
-for a in total_data:
-    print(a)
+    total_data = total_data[:-1]
+
+    return total_data
+
+# print(len(get_data_from_folder('data/')))
